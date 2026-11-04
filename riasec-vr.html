@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080d20">
+<title>RIASEC VR WORLD | CAREERVERSE</title>
+<style>
+:root{color-scheme:dark;--cyan:#59e5f2;--violet:#a58bff;--pink:#ff83c8;--gold:#ffd477}
+*{box-sizing:border-box}body{margin:0;background:#070b1b;color:#f4f7ff;font:15px/1.5 Inter,system-ui,sans-serif;overflow:hidden}
+#scene{position:fixed;inset:0}canvas{display:block}
+.hud{position:fixed;z-index:3;pointer-events:none;inset:0;padding:22px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(180deg,#05091caa,transparent 22%,transparent 70%,#05091cbb)}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.brand{font-weight:950;letter-spacing:.13em}.brand span{color:var(--cyan)}.sub{font-size:11px;color:#b6c5e8;letter-spacing:.13em}.pill{border:1px solid #ffffff35;background:#101a35cc;padding:8px 13px;border-radius:30px;font-size:12px}
+.bottom{display:flex;justify-content:space-between;align-items:end;gap:16px}.intro{max-width:560px}.eyebrow{color:var(--cyan);font-size:11px;font-weight:900;letter-spacing:.2em}.intro h1{font-size:clamp(27px,4vw,48px);line-height:1.02;margin:8px 0}.intro p{color:#c0cce7;margin:0}.hint{max-width:290px;text-align:right;color:#c0cce7;font-size:12px}
+#mission{position:fixed;z-index:5;inset:0;background:#030716d9;display:none;place-items:center;padding:18px}
+#mission.show{display:grid}.box{width:min(600px,100%);background:linear-gradient(145deg,#172447,#0d1530);border:1px solid #65e8f288;border-radius:22px;padding:24px;box-shadow:0 25px 90px #000b}
+.box h2{margin:5px 0 8px}.box p{color:#c0cce7}.answers{display:grid;gap:9px;margin:18px 0}.answers button,.action{border:1px solid #ffffff30;border-radius:12px;padding:12px;background:#1b2b50;color:white;text-align:left;cursor:pointer}.answers button:hover,.action:hover{border-color:var(--cyan);background:#263d68}.action{background:linear-gradient(100deg,var(--cyan),var(--violet));color:#081329;font-weight:900;text-align:center}.close{float:right;background:#ffffff14;color:white;border:1px solid #ffffff30;border-radius:9px;padding:7px 10px;cursor:pointer}
+#toast{position:fixed;z-index:4;left:50%;top:18%;transform:translateX(-50%);background:#101a35ed;border:1px solid #59e5f2;border-radius:14px;padding:12px 18px;display:none;text-align:center;max-width:min(90vw,520px)}
+#vrButton{position:fixed!important;z-index:8!important;bottom:22px!important;left:50%!important;transform:translateX(-50%)!important;border:1px solid #59e5f2!important;background:#142344!important;color:#fff!important;border-radius:12px!important;font:800 13px system-ui!important;padding:12px 18px!important}
+a.back{pointer-events:auto;color:#d8e5ff;text-decoration:none;border:1px solid #ffffff35;border-radius:10px;padding:8px 12px;background:#101a35cc}
+@media(max-width:650px){.hud{padding:15px}.bottom{display:block}.hint{text-align:left;margin-top:12px}.intro p{font-size:13px}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div id="scene"></div>
+<div class="hud">
+ <div class="top"><div><div class="brand">CAREER<span>VERSE</span> ✦</div><div class="sub">RIASEC VR WORLD · IMMERSIVE CAREER EXPLORATION</div></div><a class="back" href="index.html">← Kembali ke Hub</a></div>
+ <div class="bottom"><div class="intro"><div class="eyebrow">WELCOME, EXPLORER</div><h1>Masuki dunia <span style="color:#59e5f2">RIASEC</span>.</h1><p>Teroka enam portal kerjaya dalam ruang 3D. Pilih portal, selesaikan misi dan kenali cara anda bekerja.</p></div><div class="hint"><b>PC:</b> Gerakkan tetikus untuk melihat · klik portal untuk masuk<br><b>Telefon:</b> Seret skrin untuk melihat · sentuh portal<br><b>VR:</b> Sambungkan headset dan tekan ENTER VR jika disokong</div></div>
+</div>
+<div id="toast"></div>
+<div id="mission"><div class="box"><button class="close" onclick="closeMission()">✕</button><div class="eyebrow" id="mcode">RIASEC MISSION</div><h2 id="mtitle">Zon Penerokaan</h2><p id="mquestion"></p><div class="answers" id="manswers"></div><div id="mfeedback"></div></div></div>
+<script type="module">
+import * as THREE from 'three';
+import { VRButton } from 'three/addons/webxr/VRButton.js';
+const zones=[
+ {c:'R',name:'REALISTIC',icon:'🔧',color:0x55ddeb,desc:'Bina, baiki dan kendalikan.',job:'Juruteknik · Jurutera · Mekanik',q:'Robot sekolah tidak bergerak. Apakah tindakan pertama?',a:['Periksa sambungan dan komponen','Hias robot dahulu','Terus buat promosi'],correct:0,why:'Realistic gemar tugasan praktikal, peralatan dan hasil yang boleh dilihat.'},
+ {c:'I',name:'INVESTIGATIVE',icon:'🔬',color:0xa58bff,desc:'Siasat, uji dan temui jawapan.',job:'Saintis · Doktor · Penganalisis',q:'Keputusan eksperimen tidak konsisten. Apa langkah terbaik?',a:['Buat kesimpulan secara rawak','Semak data dan ulang ujian','Abaikan keputusan'],correct:1,why:'Investigative menekankan rasa ingin tahu, bukti dan pemikiran analitikal.'},
+ {c:'A',name:'ARTISTIC',icon:'🎨',color:0xff83c8,desc:'Cipta, reka dan ekspresikan idea.',job:'Pereka · Animator · Jurugambar',q:'Anda diminta menghasilkan kempen kreatif. Apa pilihan anda?',a:['Salin reka bentuk sedia ada','Cipta konsep visual yang unik','Susun rekod kewangan'],correct:1,why:'Artistic suka kebebasan, imaginasi dan penghasilan karya asli.'},
+ {c:'S',name:'SOCIAL',icon:'🤝',color:0x7ce6b2,desc:'Bantu, ajar dan bimbing manusia.',job:'Guru · Kaunselor · Jururawat',q:'Rakan kelihatan terasing daripada kumpulan. Apa tindakan sesuai?',a:['Dekati dan dengar dengan empati','Sebarkan cerita kepada orang lain','Biarkan sahaja'],correct:0,why:'Social cenderung membantu, bekerjasama dan membangunkan orang lain.'},
+ {c:'E',name:'ENTERPRISING',icon:'🚀',color:0xffd477,desc:'Pimpin, pengaruhi dan usahakan idea.',job:'Usahawan · Peguam · Pengurus',q:'Kelab mahu mengadakan projek jualan amal. Apa peranan anda?',a:['Tunggu arahan sepanjang masa','Rancang strategi dan pimpin pasukan','Elak membuat keputusan'],correct:1,why:'Enterprising tertarik kepada kepimpinan, pengaruh dan pencapaian matlamat.'},
+ {c:'C',name:'CONVENTIONAL',icon:'📊',color:0x77aaff,desc:'Susun, rekod dan urus maklumat.',job:'Akauntan · Pentadbir · Penganalisis data',q:'Dokumen projek bercampur dan sukar dicari. Apa tindakan terbaik?',a:['Simpan secara rawak','Bina sistem label dan rekod','Padam semua dokumen'],correct:1,why:'Conventional menghargai ketelitian, sistem, data dan aturan yang jelas.'}
+];
+let scene,camera,renderer,raycaster,mouse,portals=[],clock=new THREE.Clock(),yaw=0,pitch=0,drag=false,lastX=0,lastY=0,move={};
+const root=document.getElementById('scene');
+scene=new THREE.Scene();scene.background=new THREE.Color(0x070b1b);scene.fog=new THREE.FogExp2(0x070b1b,.022);
+camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.1,180);camera.position.set(0,2.1,12);
+renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.xr.enabled=true;renderer.outputColorSpace=THREE.SRGBColorSpace;root.appendChild(renderer.domElement);
+document.body.appendChild(VRButton.createButton(renderer));
+scene.add(new THREE.HemisphereLight(0x9bcaff,0x17102d,2.1));
+const key=new THREE.PointLight(0x59e5f2,35,60);key.position.set(0,9,2);scene.add(key);
+const floor=new THREE.Mesh(new THREE.CircleGeometry(42,96),new THREE.MeshStandardMaterial({color:0x101a35,metalness:.45,roughness:.55}));floor.rotation.x=-Math.PI/2;floor.position.y=-.08;scene.add(floor);
+const grid=new THREE.GridHelper(80,50,0x315b8a,0x1b3157);grid.position.y=-.04;scene.add(grid);
+const ring=new THREE.Mesh(new THREE.TorusGeometry(5.8,.035,8,120),new THREE.MeshBasicMaterial({color:0x59e5f2,transparent:true,opacity:.55}));ring.rotation.x=Math.PI/2;ring.position.y=.04;scene.add(ring);
+const stars=new THREE.BufferGeometry(),starPos=[];for(let i=0;i<650;i++){starPos.push((Math.random()-.5)*100,Math.random()*35+2,(Math.random()-.5)*100)}stars.setAttribute('position',new THREE.Float32BufferAttribute(starPos,3));scene.add(new THREE.Points(stars,new THREE.PointsMaterial({color:0xa9caff,size:.075,transparent:true,opacity:.8})));
+const center=new THREE.Mesh(new THREE.IcosahedronGeometry(1.15,2),new THREE.MeshStandardMaterial({color:0x4856c9,emissive:0x272b9c,emissiveIntensity:1.2,metalness:.55,roughness:.2}));center.position.set(0,2.3,0);scene.add(center);
+const halo=new THREE.Mesh(new THREE.TorusGeometry(1.65,.045,10,80),new THREE.MeshBasicMaterial({color:0x59e5f2}));halo.position.copy(center.position);halo.rotation.x=.8;scene.add(halo);
+function labelSprite(text,color){const c=document.createElement('canvas');c.width=512;c.height=128;const x=c.getContext('2d');x.fillStyle='rgba(5,12,32,.82)';x.strokeStyle='#'+color.toString(16).padStart(6,'0');x.lineWidth=5;x.roundRect(5,5,502,118,24);x.fill();x.stroke();x.font='bold 43px system-ui';x.textAlign='center';x.fillStyle='#ffffff';x.fillText(text,256,78);const t=new THREE.CanvasTexture(c);const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true}));s.scale.set(3.2,.8,1);return s}
+zones.forEach((z,i)=>{const a=i*Math.PI/3-Math.PI/2,r=8.4,x=Math.cos(a)*r,zz=Math.sin(a)*r;const group=new THREE.Group();group.position.set(x,1.7,zz);group.userData.zone=i;
+ const base=new THREE.Mesh(new THREE.CylinderGeometry(1.45,1.65,.35,48),new THREE.MeshStandardMaterial({color:0x142344,metalness:.65,roughness:.3,emissive:z.color,emissiveIntensity:.18}));base.position.y=-1.05;group.add(base);
+ const tor=new THREE.Mesh(new THREE.TorusGeometry(1.05,.13,16,80),new THREE.MeshStandardMaterial({color:z.color,emissive:z.color,emissiveIntensity:.8,metalness:.4,roughness:.2}));tor.position.y=.1;group.add(tor);
+ const orb=new THREE.Mesh(new THREE.IcosahedronGeometry(.68,1),new THREE.MeshStandardMaterial({color:z.color,emissive:z.color,emissiveIntensity:.48,metalness:.25,roughness:.22}));orb.position.y=.1;group.add(orb);
+ const txt=labelSprite(z.c+'  '+z.name,z.color);txt.position.y=1.35;group.add(txt);
+ const beam=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,1.4,8),new THREE.MeshBasicMaterial({color:z.color,transparent:true,opacity:.3}));beam.position.y=-.55;group.add(beam);
+ group.traverse(o=>{if(o.isMesh)o.userData.zone=i});scene.add(group);portals.push(group);
+});
+raycaster=new THREE.Raycaster();mouse=new THREE.Vector2();
+function selectAt(x,y){mouse.set(x,y);raycaster.setFromCamera(mouse,camera);const hits=raycaster.intersectObjects(portals,true);if(hits.length){let i=hits[0].object.userData.zone;if(i!==undefined)openMission(i)}}
+renderer.domElement.addEventListener('pointerdown',e=>{drag=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)});
+renderer.domElement.addEventListener('pointermove',e=>{if(drag&&!renderer.xr.isPresenting){yaw-=(e.clientX-lastX)*.004;pitch=Math.max(-.7,Math.min(.7,pitch+(e.clientY-lastY)*.003));lastX=e.clientX;lastY=e.clientY;camera.rotation.set(pitch,yaw,0,'YXZ')}});
+renderer.domElement.addEventListener('pointerup',e=>{if(drag){const dx=Math.abs(e.clientX-lastX),dy=Math.abs(e.clientY-lastY);drag=false;if(dx<8&&dy<8)selectAt(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1)}});
+renderer.domElement.addEventListener('click',e=>{if(!renderer.xr.isPresenting)selectAt(e.clientX/innerWidth*2-1,-(e.clientY/innerHeight)*2+1)});
+addEventListener('keydown',e=>{move[e.key.toLowerCase()]=true});addEventListener('keyup',e=>{move[e.key.toLowerCase()]=false});
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+const controller=renderer.xr.getController(0);scene.add(controller);controller.addEventListener('select',()=>{const dir=new THREE.Vector3(0,0,-1).applyQuaternion(controller.quaternion);raycaster.set(controller.position,dir);const h=raycaster.intersectObjects(portals,true);if(h.length){const i=h[0].object.userData.zone;if(i!==undefined)openMission(i)}});
+let current=null,score=0,done=[];
+window.openMission=i=>{current=i;const z=zones[i];document.getElementById('mcode').textContent='PORTAL '+z.c+' · '+z.name;document.getElementById('mtitle').textContent=z.icon+' '+z.name+' WORLD';document.getElementById('mquestion').textContent=z.q;document.getElementById('mfeedback').textContent='';document.getElementById('manswers').innerHTML=z.a.map((a,n)=>'<button onclick="answerMission('+n+')">'+a+'</button>').join('');document.getElementById('mission').classList.add('show')};
+window.answerMission=n=>{const z=zones[current],f=document.getElementById('mfeedback');if(n===z.correct){if(!done.includes(z.c)){done.push(z.c);score+=50}f.innerHTML='<p style="color:#7ce6b2"><b>✓ Misi berjaya! +50 XP</b></p><p>'+z.why+'</p><p>Portal diterokai: '+done.length+'/6 · XP VR: '+score+'</p><button class="action" onclick="closeMission()">Kembali ke dunia VR</button>'}else f.innerHTML='<p style="color:#ffd477">Cuba lagi. Fikirkan tindakan yang paling sesuai dengan bidang ini.</p>'};
+window.closeMission=()=>document.getElementById('mission').classList.remove('show');
+const toast=document.getElementById('toast');function animate(){const dt=Math.min(clock.getDelta(),.04),t=clock.elapsedTime;center.rotation.y+=dt*.22;center.rotation.x+=dt*.1;halo.rotation.z+=dt*.25;portals.forEach((p,i)=>{p.children[2].position.y=.1+Math.sin(t*1.4+i)*.13;p.rotation.y=Math.sin(t*.35+i)*.08});if(!renderer.xr.isPresenting){const forward=(move.w||move.arrowup?1:0)-(move.s||move.arrowdown?1:0),side=(move.d||move.arrowright?1:0)-(move.a||move.arrowleft?1:0);camera.position.x+=side*dt*4;camera.position.z-=forward*dt*4;camera.position.x=Math.max(-13,Math.min(13,camera.position.x));camera.position.z=Math.max(-13,Math.min(13,camera.position.z))}renderer.render(scene,camera);requestAnimationFrame(animate)}animate();
+toast.textContent='Pilih salah satu daripada 6 portal untuk memulakan misi RIASEC.';toast.style.display='block';setTimeout(()=>toast.style.display='none',5200);
+</script>
+</body></html>
