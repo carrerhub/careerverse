@@ -84,4 +84,4 @@ function openZone(k){let z=ZONES.find(x=>x[0]===k);let jobs=CAREERS.filter(c=>c[
 function saveProfile(){state.name=document.getElementById('playerName').value.trim()||'Explorer';save()}
 function initAvatar(){document.getElementById('avatarChoices').innerHTML=['🧑‍🚀','👩‍🚀','🧑‍🎓','👩‍🔬','🧑‍🎨','👨‍💻'].map(a=>'<button class="avatar-choice '+(a===state.avatar?'active':'')+'" onclick="state.avatar=\''+a+'\';document.getElementById(\'avatarPreview\').textContent=\''+a+'\';initAvatar()">'+a+'</button>').join('')}
 load();renderGames();renderZones();renderCareers();initAvatar();updateUI();
-</script></body></html>
+</script><script src="riasec-vr.js"></script></body></html>
