@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080d20">
+<title>CareerVerse | Science Lab 3D Missions</title>
+<style>
+:root{color-scheme:dark;--bg:#080d20;--panel:#121e3b;--line:#ffffff26;--cyan:#59e5f2;--muted:#b5c5e4}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0,#293c72,transparent 40%),var(--bg);color:#f5f8ff;font:15px/1.55 Inter,system-ui,sans-serif}.shell{max-width:1100px;margin:auto;padding:24px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.brand{font-weight:950;letter-spacing:.14em}.brand span{color:var(--cyan)}a{color:#8deeff}.hero{padding:32px 0}.eyebrow{color:var(--cyan);font-size:11px;letter-spacing:.2em;font-weight:900}.hero h1{font-size:clamp(32px,5vw,56px);line-height:1.05;margin:8px 0}.muted{color:var(--muted)}.cards{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}.card{background:linear-gradient(145deg,#1a2a50,#101a34);border:1px solid var(--line);border-radius:16px;padding:15px;cursor:pointer;text-align:left;color:white}.card.active{border-color:var(--cyan);box-shadow:0 0 25px #59e5f244}.emoji{font-size:35px}.card b{display:block;margin:8px 0}.panel{background:linear-gradient(145deg,#18284b,#101a34);border:1px solid var(--line);border-radius:18px;padding:20px;margin:16px 0}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}.btn{border:1px solid var(--line);border-radius:11px;padding:11px 15px;background:#21385f;color:white;font-weight:850;cursor:pointer}.btn.primary{background:linear-gradient(100deg,#59e5f2,#a5a0ff);color:#081329;border:0}.btn:disabled{opacity:.4}.brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.stage{height:390px;background:#0a1530;border-radius:14px;overflow:hidden}.stage canvas{width:100%;height:100%;display:block}.hud{display:flex;gap:9px;flex-wrap:wrap;padding:12px;background:#111d3b;border-radius:0 0 14px 14px}.hud button,.hud select,.hud input{border:1px solid var(--line);border-radius:9px;background:#20365e;color:white;padding:9px}.status{background:#0d1831;padding:12px;border-radius:10px;color:#d9eaff;margin:10px 0}.meter{height:7px;background:#ffffff20;border-radius:20px;overflow:hidden}.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#59e5f2,#a58bff)}.hidden{display:none!important}.result{padding:13px;border-radius:12px;background:#123b38;color:#e0fff2;margin-top:12px}@media(max-width:850px){.cards{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){.shell{padding:15px}.brief-grid{grid-template-columns:1fr}.stage{height:285px}}
+</style>
+</head>
+<body>
+<main class="shell">
+<div class="top"><div class="brand">CAREER<span>VERSE</span> ✦ <span>SCIENCE LAB</span></div><a href="index.html">← Back to CareerVerse homepage</a></div>
+<section class="hero"><div class="eyebrow">FULL 3D STEM EXPERIENCE · INTERACTIVE MISSIONS</div><h1>Science Mission<br><span style="color:var(--cyan)">Control Center</span></h1><p class="muted">Pilih misi, baca Mission Briefing, ikuti How to Play dan masuk ke simulasi 3D interaktif.</p></section>
+<section class="cards" id="missionCards">
+<button class="card active" data-game="chem"><span class="emoji">🧪</span><b>Chemistry Mix Master</b><small class="muted">Chemistry · 100 XP</small></button>
+<button class="card" data-game="physics"><span class="emoji">⚡</span><b>Physics Motion Challenge</b><small class="muted">Physics · 150 XP</small></button>
+<button class="card" data-game="build"><span class="emoji">🧱</span><b>Engineering Block Builder</b><small class="muted">Engineering · 200 XP</small></button>
+<button class="card" data-game="robot"><span class="emoji">🤖</span><b>Robot Assembly Lab</b><small class="muted">Robotics · 200 XP</small></button>
+<button class="card" data-game="bio"><span class="emoji">🔬</span><b>Bio Explorer</b><small class="muted">Biology · 100 XP</small></button>
+</section>
+<section class="panel" id="briefing">
+<div class="eyebrow">MISSION BRIEFING</div><h2 id="missionTitle">Chemistry Mix Master</h2><p id="missionDescription" class="muted"></p>
+<div class="brief-grid"><div><h3>Mission Objectives</h3><ul id="objectives"></ul></div><div><h3>How to Play</h3><ol id="steps"></ol><p class="muted" id="controls"></p></div></div>
+<div class="actions"><button class="btn primary" id="startMission">▶ START 3D GAME</button><button class="btn" id="showBriefing">MISSION BRIEFING</button></div>
+</section>
+<section class="panel hidden" id="simulation">
+<div class="top"><div><div class="eyebrow">LIVE 3D SIMULATION</div><h2 id="simTitle">Mission</h2></div><button class="btn" id="exitSimulation">✕ Exit Simulation</button></div>
+<div class="stage" id="stage"></div><div class="status" id="status">Preparing 3D lab…</div><div class="meter" id="meter"><i></i></div><div class="hud" id="hud"></div><div id="completion"></div>
+<div class="actions"><button class="btn" id="restartMission">↻ Restart</button><button class="btn" id="pauseMission">Ⅱ Pause / Resume</button></div>
+</section>
+</main>
+<script src="science-lab-3d.js"></script>
+<script src="science-lab-3d-app.js"></script>
+</body></html>
