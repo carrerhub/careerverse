@@ -85,4 +85,5 @@ function saveProfile(){state.name=document.getElementById('playerName').value.tr
 function initAvatar(){document.getElementById('avatarChoices').innerHTML=['🧑‍🚀','👩‍🚀','🧑‍🎓','👩‍🔬','🧑‍🎨','👨‍💻'].map(a=>'<button class="avatar-choice '+(a===state.avatar?'active':'')+'" onclick="state.avatar=\''+a+'\';document.getElementById(\'avatarPreview\').textContent=\''+a+'\';initAvatar()">'+a+'</button>').join('')}
 load();renderGames();renderZones();renderCareers();initAvatar();updateUI();
 </script><script src="riasec-vr.js"></script><script src="stem-zone2.js" defer></script>
+<script src="astrocard-stem-adventure.js" defer></script>
 </body></html>
